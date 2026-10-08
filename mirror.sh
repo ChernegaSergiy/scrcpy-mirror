@@ -4,12 +4,13 @@ set -euo pipefail
 SCRCPY_HOME="${SCRCPY_HOME:-$HOME/.local/opt/scrcpy}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-60}"
 
+# Binary lookup: PATH first, then custom directory
 find_tool() {
-    local name="$1"
-    if command -v "$name" >/dev/null 2>&1; then
-        command -v "$name"
-    elif [[ -x "$SCRCPY_HOME/$name" ]]; then
-        echo "$SCRCPY_HOME/$name"
+    local tool="$1"
+    if command -v "$tool" >/dev/null 2>&1; then
+        command -v "$tool"
+    elif [[ -x "$SCRCPY_HOME/$tool" ]]; then
+        echo "$SCRCPY_HOME/$tool"
     else
         return 1
     fi
@@ -18,39 +19,54 @@ find_tool() {
 ADB="$(find_tool adb)" || { echo "Error: adb not found" >&2; exit 1; }
 SCRCPY="$(find_tool scrcpy)" || { echo "Error: scrcpy not found" >&2; exit 1; }
 
-"$ADB" start-server >/dev/null
+# Serials of devices that passed authorization
+get_authorized_devices() {
+    "$ADB" devices | awk '$2 == "device" { print $1 }'
+}
 
-echo "Waiting for a phone to be connected..."
-deadline=$((SECONDS + WAIT_TIMEOUT))
-while (( SECONDS < deadline )); do
-    mapfile -t lines < <("$ADB" devices | tail -n +2 | grep -P '\tdevice$' || true)
-    if (( ${#lines[@]} > 0 )); then
-        break
-    fi
-    unauthorized=$("$ADB" devices | grep -c $'\tunauthorized' || true)
-    if (( unauthorized > 0 )); then
-        echo "Device found but unauthorized — confirm the prompt on the phone screen"
-    fi
-    sleep 1
-done
+has_unauthorized_device() {
+    "$ADB" devices | awk '$2 == "unauthorized" { found = 1 } END { exit !found }'
+}
 
-if (( ${#lines[@]} == 0 )); then
-    echo "Error: no device connected within ${WAIT_TIMEOUT} seconds" >&2
-    exit 1
+mapfile -t devices < <(get_authorized_devices)
+
+# Wait for authorization via the adb daemon instead of polling
+if (( ${#devices[@]} == 0 )); then
+    echo "Waiting for device (timeout: ${WAIT_TIMEOUT} seconds)..."
+    if has_unauthorized_device; then
+        echo "Device detected but unauthorized. Please confirm USB debugging on your phone."
+    fi
+    if ! timeout "${WAIT_TIMEOUT}" "$ADB" wait-for-device; then
+        echo "Error: no authorized device found within ${WAIT_TIMEOUT} seconds." >&2
+        exit 1
+    fi
+    mapfile -t devices < <(get_authorized_devices)
 fi
 
-if [[ -n "${ANDROID_SERIAL:-}" ]]; then
-    serial="$ANDROID_SERIAL"
-elif (( ${#lines[@]} == 1 )); then
-    serial="${lines[0]%%$'\t'*}"
-else
-    echo "Multiple devices found:"
-    for i in "${!lines[@]}"; do
-        echo "  $((i + 1))) ${lines[i]%%$'\t'*}"
-    done
-    read -rp "Select a device number: " choice
-    serial="${lines[choice - 1]%%$'\t'*}"
+serial="${ANDROID_SERIAL:-}"
+
+if [[ -z "$serial" ]]; then
+    case ${#devices[@]} in
+        0)
+            echo "Error: device disappeared or is unauthorized." >&2
+            exit 1
+            ;;
+        1)
+            serial="${devices[0]}"
+            ;;
+        *)
+            echo "Multiple devices found:"
+            PS3="Select a device [1-${#devices[@]}]: "
+            select choice in "${devices[@]}"; do
+                if [[ -n "$choice" ]]; then
+                    serial="$choice"
+                    break
+                fi
+                echo "Invalid selection, try again."
+            done
+            ;;
+    esac
 fi
 
-echo "Launching scrcpy for device $serial"
+echo "Launching scrcpy for $serial..."
 exec "$SCRCPY" -s "$serial" "$@"
