@@ -17,3 +17,7 @@ ANDROID_SERIAL=serial ./mirror.sh       # target a specific device
 ```
 
 The script waits up to 60 seconds for the device to be authorized (confirm the prompt on the phone screen) and, if several phones are connected, lets you pick one (`WAIT_TIMEOUT` overrides the timeout).
+
+## License
+
+This project is licensed under the CSSM Unlimited License v2.0 (CSSM-ULv2). See the [LICENSE](LICENSE) file for details.
