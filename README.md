@@ -16,6 +16,4 @@ A Bash script that waits for an Android smartphone to be connected over USB and 
 ANDROID_SERIAL=serial ./mirror.sh       # target a specific device
 ```
 
-The script waits up to 60 seconds for the device to be authorized (confirm the
-prompt on the phone screen) and, if several phones are connected, lets you pick
-one (`WAIT_TIMEOUT` overrides the timeout).
+The script waits up to 60 seconds for the device to be authorized (confirm the prompt on the phone screen) and, if several phones are connected, lets you pick one (`WAIT_TIMEOUT` overrides the timeout).
