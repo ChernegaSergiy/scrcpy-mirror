@@ -35,7 +35,7 @@ while (( SECONDS < deadline )); do
 done
 
 if (( ${#lines[@]} == 0 )); then
-    echo "Error: no device connected within ${WAIT_TIMEOUT} s" >&2
+    echo "Error: no device connected within ${WAIT_TIMEOUT} seconds" >&2
     exit 1
 fi
 
