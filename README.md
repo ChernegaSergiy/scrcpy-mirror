@@ -1,6 +1,6 @@
 # scrcpy-mirror
 
-A Bash script that waits for an Android smartphone to be connected over USB and launches [scrcpy](https://github.com/Genymobile/scrcpy) to mirror its screen on the computer.
+A Bash script that waits for an Android device to be authorized over USB and launches [scrcpy](https://github.com/Genymobile/scrcpy) to mirror its screen on the computer.
 
 ## Requirements
 
@@ -13,10 +13,17 @@ A Bash script that waits for an Android smartphone to be connected over USB and 
 ```bash
 ./mirror.sh                             # auto-select the device
 ./mirror.sh --capture-orientation=@90   # any scrcpy arguments are passed through
-ANDROID_SERIAL=serial ./mirror.sh       # target a specific device
 ```
 
-The script waits up to 60 seconds for the device to be authorized (confirm the prompt on the phone screen) and, if several phones are connected, lets you pick one (`WAIT_TIMEOUT` overrides the timeout).
+When several devices are connected, the script shows a numbered menu. The serial number is passed to scrcpy automatically via `-s <serial>`.
+
+## Environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `SCRCPY_HOME` | `$HOME/.local/opt/scrcpy` | Directory used to look for `adb` and `scrcpy` when they are not in PATH |
+| `WAIT_TIMEOUT` | `60` | Seconds to wait for an authorized device before giving up |
+| `ANDROID_SERIAL` | — | Target a specific device by serial number (e.g. `ANDROID_SERIAL=serial ./mirror.sh`) |
 
 ## Contributing
 
