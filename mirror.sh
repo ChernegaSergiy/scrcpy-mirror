@@ -15,12 +15,12 @@ find_tool() {
     fi
 }
 
-ADB="$(find_tool adb)" || { echo "Помилка: adb не знайдено" >&2; exit 1; }
-SCRCPY="$(find_tool scrcpy)" || { echo "Помилка: scrcpy не знайдено" >&2; exit 1; }
+ADB="$(find_tool adb)" || { echo "Error: adb not found" >&2; exit 1; }
+SCRCPY="$(find_tool scrcpy)" || { echo "Error: scrcpy not found" >&2; exit 1; }
 
 "$ADB" start-server >/dev/null
 
-echo "Чекаю на підключення телефону..."
+echo "Waiting for a phone to be connected..."
 deadline=$((SECONDS + WAIT_TIMEOUT))
 while (( SECONDS < deadline )); do
     mapfile -t lines < <("$ADB" devices | tail -n +2 | grep -P '\tdevice$' || true)
@@ -29,13 +29,13 @@ while (( SECONDS < deadline )); do
     fi
     unauthorized=$("$ADB" devices | grep -c $'\tunauthorized' || true)
     if (( unauthorized > 0 )); then
-        echo "Телефон знайдено, але не авторизовано — підтвердіть запит на екрані телефону"
+        echo "Device found but unauthorized — confirm the prompt on the phone screen"
     fi
     sleep 1
 done
 
 if (( ${#lines[@]} == 0 )); then
-    echo "Помилка: жоден пристрій не підключений протягом ${WAIT_TIMEOUT} с" >&2
+    echo "Error: no device connected within ${WAIT_TIMEOUT} s" >&2
     exit 1
 fi
 
@@ -44,13 +44,13 @@ if [[ -n "${ANDROID_SERIAL:-}" ]]; then
 elif (( ${#lines[@]} == 1 )); then
     serial="${lines[0]%%$'\t'*}"
 else
-    echo "Знайдено кілька пристроїв:"
+    echo "Multiple devices found:"
     for i in "${!lines[@]}"; do
         echo "  $((i + 1))) ${lines[i]%%$'\t'*}"
     done
-    read -rp "Виберіть номер: " choice
+    read -rp "Select a device number: " choice
     serial="${lines[choice - 1]%%$'\t'*}"
 fi
 
-echo "Запуск scrcpy для пристрою $serial"
+echo "Launching scrcpy for device $serial"
 exec "$SCRCPY" -s "$serial" "$@"
