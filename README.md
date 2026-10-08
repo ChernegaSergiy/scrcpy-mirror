@@ -1,20 +1,21 @@
 # scrcpy-mirror
 
-Bash-скрипт, який чекає на підключення Android-смартфона через USB і запускає [scrcpy](https://github.com/Genymobile/scrcpy) для трансляції екрана на комп'ютер.
+A Bash script that waits for an Android smartphone to be connected over USB and launches [scrcpy](https://github.com/Genymobile/scrcpy) to mirror its screen on the computer.
 
-## Вимоги
+## Requirements
 
-- `adb` у PATH (або в `~/.local/opt/scrcpy`)
-- `scrcpy` у PATH (або в `~/.local/opt/scrcpy`, звідти можна завантажити [офіційний бінарник](https://github.com/Genymobile/scrcpy/releases))
-- Увімкнене налагодження USB на телефоні
+- `adb` in PATH (or in `~/.local/opt/scrcpy`)
+- `scrcpy` in PATH (or in `~/.local/opt/scrcpy`, where the [official binary](https://github.com/Genymobile/scrcpy/releases) can be downloaded)
+- USB debugging enabled on the phone
 
-## Використання
+## Usage
 
 ```bash
-./mirror.sh                       # автовибір пристрою
-./mirror.sh --capture-orientation=@90   # будь-які аргументи scrcpy передаються далі
-ANDROID_SERIAL=serial ./mirror.sh # конкретний пристрій
+./mirror.sh                             # auto-select the device
+./mirror.sh --capture-orientation=@90   # any scrcpy arguments are passed through
+ANDROID_SERIAL=serial ./mirror.sh       # target a specific device
 ```
 
-Скрипт чекає на авторизацію пристрою (запит на екрані телефону) до 60 секунд
-(`WAIT_TIMEOUT`), а за наявності кількох підключених телефонів пропонує вибір.
+The script waits up to 60 seconds for the device to be authorized (confirm the
+prompt on the phone screen) and, if several phones are connected, lets you pick
+one (`WAIT_TIMEOUT` overrides the timeout).
