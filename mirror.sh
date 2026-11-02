@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Git Bash/MSYS: do not rewrite arguments like --push-target=/sdcard/ into Windows paths
+export MSYS2_ARG_CONV_EXCL="*"
+
 SCRCPY_HOME="${SCRCPY_HOME:-$HOME/.local/opt/scrcpy}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-60}"
 
