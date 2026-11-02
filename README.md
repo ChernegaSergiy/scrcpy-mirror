@@ -25,6 +25,14 @@ When several devices are connected, the script shows a numbered menu. The serial
 | `WAIT_TIMEOUT` | `60` | Seconds to wait for an authorized device before giving up |
 | `ANDROID_SERIAL` | — | Target a specific device by serial number (e.g. `ANDROID_SERIAL=serial ./mirror.sh`) |
 
+## Windows
+
+The script is Bash, so on Windows run it from [Git Bash](https://gitforwindows.org/) (WSL is not recommended: USB devices are not visible there by default).
+
+1. Download the [scrcpy Windows release](https://github.com/Genymobile/scrcpy/releases) (it bundles `adb.exe`) and unzip it, e.g. to `C:\tools\scrcpy`.
+2. Point the script to it: `export SCRCPY_HOME=/c/tools/scrcpy` (or add the folder to PATH).
+3. Run `./mirror.sh` from Git Bash.
+
 ## Contributing
 
 Contributions are welcome and appreciated! Here's how you can contribute:
