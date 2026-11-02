@@ -11,6 +11,8 @@ find_tool() {
         command -v "$tool"
     elif [[ -x "$SCRCPY_HOME/$tool" ]]; then
         echo "$SCRCPY_HOME/$tool"
+    elif [[ -x "$SCRCPY_HOME/$tool.exe" ]]; then
+        echo "$SCRCPY_HOME/$tool.exe"
     else
         return 1
     fi
