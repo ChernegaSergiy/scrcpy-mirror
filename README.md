@@ -1,5 +1,7 @@
 # scrcpy-mirror
 
+[![License: CSSM Unlimited License v2.0](https://img.shields.io/badge/License-CSSM%20Unlimited%20License%20v2.0-blue.svg?logo=opensourceinitiative)](LICENSE)
+
 A Bash script that waits for an Android device to be authorized over USB and launches [scrcpy](https://github.com/Genymobile/scrcpy) to mirror its screen on the computer.
 
 ## Requirements
