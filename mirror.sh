@@ -21,11 +21,11 @@ SCRCPY="$(find_tool scrcpy)" || { echo "Error: scrcpy not found" >&2; exit 1; }
 
 # Serials of devices that passed authorization
 get_authorized_devices() {
-    "$ADB" devices | awk '$2 == "device" { print $1 }'
+    "$ADB" devices | tr -d '\r' | awk '$2 == "device" { print $1 }'
 }
 
 has_unauthorized_device() {
-    "$ADB" devices | awk '$2 == "unauthorized" { found = 1 } END { exit !found }'
+    "$ADB" devices | tr -d '\r' | awk '$2 == "unauthorized" { found = 1 } END { exit !found }'
 }
 
 mapfile -t devices < <(get_authorized_devices)
